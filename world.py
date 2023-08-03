@@ -1,5 +1,6 @@
 class World:
     def __init__(self, data, map_image):
+        self.tile_map = []
         self.waypoints = []
         self.level_data = data
         self.image = map_image
@@ -7,7 +8,10 @@ class World:
     def process_data(self):
         # look through data to extract relevant info
         for layer in self.level_data["layers"]:
-            if layer["name"] == "waypoints":
+            if layer["name"] == "tilemap":
+                self.tile_map = layer["data"]
+                print(self.tile_map)
+            elif layer["name"] == "waypoints":
                 for obj in layer["objects"]:
                     waypoint_data = obj["polyline"]
                     self.process_waypoints(waypoint_data)
