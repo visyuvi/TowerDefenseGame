@@ -17,8 +17,10 @@ screen = pg.display.set_mode((c.SCREEN_WIDTH + c.SIDE_PANEL, c.SCREEN_HEIGHT))
 pg.display.set_caption("Tower Defence")
 
 # game variables
+last_enemy_spawn = pg.time.get_ticks()
 placing_turrets = False
 selected_turret = None
+
 
 # load images
 # map
@@ -33,7 +35,13 @@ for x in range(1, c.TURRET_LEVELS + 1):
 # individual turret image for mouse cursor
 cursor_turret = pg.image.load('assets/images/turrets/cursor_turret.png').convert_alpha()
 # enemies
-enemy_image = pg.image.load('assets/images/enemies/enemy_1.png').convert_alpha()
+enemy_images = {
+    "weak": pg.image.load('assets/images/enemies/enemy_1.png').convert_alpha(),
+    "medium": pg.image.load('assets/images/enemies/enemy_2.png').convert_alpha(),
+    "strong": pg.image.load('assets/images/enemies/enemy_3.png').convert_alpha(),
+    "elite": pg.image.load('assets/images/enemies/enemy_4.png').convert_alpha()
+
+}
 
 # button images
 buy_turret_image = pg.image.load('assets/images/buttons/buy_turret.png').convert_alpha()
@@ -79,13 +87,12 @@ def clear_selection():
 # create world
 world = World(world_data, map_image)
 world.process_data()
+world.process_enemies()
 
 # create groups
 enemy_group = pg.sprite.Group()
 turret_group = pg.sprite.Group()
 
-enemy = Enemy(world.waypoints, enemy_image)
-enemy_group.add(enemy)
 
 # create buttons
 turret_button = Button(c.SCREEN_WIDTH + 30, 120, buy_turret_image, True)
@@ -109,6 +116,7 @@ while run:
     # highlight selected turret
     if selected_turret:
         selected_turret.selected = True
+
     ####################
     # DRAWING SECTION
     ####################
@@ -122,6 +130,15 @@ while run:
     enemy_group.draw(screen)
     for turret in turret_group:
         turret.draw(screen)
+
+    # spawn  enemies
+    if pg.time.get_ticks() - last_enemy_spawn > c.SPAWN_COOLDOWN:
+        if world.spawned_enemies < len(world.enemy_list):
+            enemy_type = world.enemy_list[world.spawned_enemies]
+            enemy = Enemy(enemy_type, world.waypoints, enemy_images)
+            enemy_group.add(enemy)
+            world.spawned_enemies += 1
+            last_enemy_spawn = pg.time.get_ticks()
 
     # draw buttons
     #  for placing turrets
