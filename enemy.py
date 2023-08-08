@@ -36,8 +36,8 @@ class Enemy(pg.sprite.Sprite):
         dist = self.movement.length()
 
         # check if remaining distance is greater than the enemy speed
-        if dist > self.speed:
-            self.pos += self.movement.normalize() * self.speed
+        if dist > self.speed * world.game_speed:
+            self.pos += self.movement.normalize() * self.speed * world.game_speed
         else:
             if dist != 0:
                 self.pos += self.movement.normalize() * dist
